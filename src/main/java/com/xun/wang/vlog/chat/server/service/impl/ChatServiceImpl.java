@@ -3,10 +3,13 @@ package com.xun.wang.vlog.chat.server.service.impl;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.xun.wang.vlog.chat.model.document.ChatDoc;
 import com.xun.wang.vlog.chat.model.domain.ChatMsg;
-import com.xun.wang.vlog.chat.model.entity.ChatMsgEntity;
-import com.xun.wang.vlog.chat.model.enums.MsgSignFlagEnum;
+import com.xun.wang.vlog.chat.model.domain.SearchCondition;
+import com.xun.wang.vlog.chat.model.domain.ServiceMultiResult;
+import com.xun.wang.vlog.chat.model.enums.MsgFlagEnum;
 import com.xun.wang.vlog.chat.server.repository.ChatMsgRepository;
+import com.xun.wang.vlog.chat.server.search.SearchService;
 import com.xun.wang.vlog.chat.server.service.ChatService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.cglib.beans.BeanCopier;
@@ -25,9 +28,12 @@ public class ChatServiceImpl implements ChatService {
     @Autowired
     private ChatMsgRepository chatMsgRepository;
 
+    @Autowired
+    private SearchService searchService;
+
     @Override
     public boolean signedMsg(List<Long> ids) {
-        return chatMsgRepository.updateflagByIds(MsgSignFlagEnum.signed.getType(), ids) == ids.size() ? true : false;
+        return chatMsgRepository.updateflagByIds(MsgFlagEnum.SIGNED.getCode(), ids) == ids.size() ? true : false;
     }
 
     @Override
@@ -36,24 +42,24 @@ public class ChatServiceImpl implements ChatService {
     }
 
     @Override
-    public List<ChatMsg> findChatRecordBySendIdAndRecieverId(String senderId, String recieverId) {
-        return convertChatMsgs(chatMsgRepository.findChatRecord(senderId, recieverId));
+    public List<ChatMsg> findChatRecordBySendIdAndReceiverId(SearchCondition searchCondition) {
+        ServiceMultiResult<ChatDoc> serviceMultiResult = searchService.query(searchCondition);
+        return convertChatMsgs(serviceMultiResult.getResult(),ChatDoc.class);
     }
+
 
     /**
      * entity convert dto
      *
-     * @param chatMsgEntities
+     * @param targets
      * @return
      */
-    public List<ChatMsg> convertChatMsgs(List<ChatMsgEntity> chatMsgEntities) {
-        return chatMsgEntities.stream().map(chatMsgEntity -> {
+    public List<ChatMsg> convertChatMsgs(List<?> targets,Class targetClass) {
+        return targets.stream().map(target -> {
             ChatMsg chatMsg = new ChatMsg();
-            BeanCopier beanCopier = BeanCopier.create(ChatMsgEntity.class, ChatMsg.class,
+            BeanCopier beanCopier = BeanCopier.create(targetClass, ChatMsg.class,
                     false);
-            beanCopier.copy(chatMsgEntity, chatMsg, null);
-            chatMsg.setMsgId(chatMsgEntity.getId());
-            chatMsg.setSignType(chatMsgEntity.getEffective());
+            beanCopier.copy(target, chatMsg, null);
             return chatMsg;
         }).collect(Collectors.toList());
 

@@ -3,6 +3,7 @@ package com.xun.wang.vlog.chat.server.service;
 import java.util.List;
 
 import com.xun.wang.vlog.chat.model.domain.ChatMsg;
+import com.xun.wang.vlog.chat.model.domain.SearchCondition;
 
 public interface ChatService {
 
@@ -23,9 +24,8 @@ public interface ChatService {
 
     /**
      * 查询聊天记录
-     * @param senderId
-     * @param recieverId
+     * @param searchCondition
      * @return
      */
-    List<ChatMsg> findChatRecordBySendIdAndRecieverId(String senderId,String recieverId);
+    List<ChatMsg> findChatRecordBySendIdAndReceiverId(SearchCondition searchCondition);
 }

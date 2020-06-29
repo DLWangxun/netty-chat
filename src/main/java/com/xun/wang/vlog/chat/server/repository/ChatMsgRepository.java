@@ -29,26 +29,6 @@ public interface ChatMsgRepository extends BaseRepository<ChatMsgEntity> {
 
 
 
-    @Query(nativeQuery = true,value = "SELECT\n" +
-            "\tid,receiver_id ,sender_id  ,sign_flag,msg,cdate,edate,creator,editor\n" +
-            "FROM\n" +
-            "\t(\n" +
-            "SELECT\n" +
-            "\t*\n" +
-            "FROM\n" +
-            "\t`t_chat_msg` \n" +
-            "WHERE\n" +
-            "\tsender_id = :senderId\n" +
-            "\tAND receiver_id = :recieverId UNION \n" +
-            "SELECT\n" +
-            "\t*\n" +
-            "FROM\n" +
-            "\t`t_chat_msg` \n" +
-            "WHERE\n" +
-            "\tsender_id = :recieverId \n" +
-            "\tAND receiver_id = :senderId\n" +
-            "\t) t \n" +
-            "ORDER BY\n" +
-            "\tt.cdate")
-    List<ChatMsgEntity> findChatRecord(@Param("senderId") String senderId,@Param("recieverId") String recieverId);
+    @Query(value = "SELECT * FROM t_chat_msg WHERE ( sender_id = :senderId AND receiver_id = :receiverId ) OR ( sender_id = :receiverId AND receiver_id = :senderId )ORDER BY cdate",nativeQuery = true)
+    List<ChatMsgEntity> findChatRecord(@Param("senderId") String senderId, @Param("receiverId") String receiverId);
 }

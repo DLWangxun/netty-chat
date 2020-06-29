@@ -56,7 +56,7 @@ $(function () {
         getRecord: function (senderId, receiverId) {
             //发起请求
             $.ajax({
-                url: '/chat/record?senderId=' + senderId + '&recieverId=' + receiverId,
+                url: '/chat/record?senderId=' + senderId + '&receiverId=' + receiverId,
                 type: 'get',
                 dataType: 'json',
                 async: false,
@@ -94,7 +94,7 @@ $(function () {
                 return
             }
             var chat = JSON.parse(e.data);
-            addChatMessage({username: chat.chatMsg.senderId, message: chat.chatMsg.msg}, null, "recieve");
+            addChatMessage({username: chat.chatMsg.senderId, message: chat.chatMsg.msg}, null, "receive");
         },
         wsclose: function () {
             connected = false;
@@ -165,7 +165,7 @@ $(function () {
                 addChatMessage({
                     username: value.senderId,
                     message: value.msg
-                }, null, value.senderId == username ? "send" : "recieve");
+                }, null, value.senderId == username ? "send" : "receive");
             });
             CHAT.init();
         }
@@ -195,7 +195,7 @@ $(function () {
                 .addClass(typingClass)
                 .append($messageBodyDiv, $usernameDiv);
         } else {
-            $messageDiv = $('<li class="recieveMsg"/>')
+            $messageDiv = $('<li class="receiveMsg"/>')
                 .data('username', data.username)
                 .addClass(typingClass)
                 .append($usernameDiv, $messageBodyDiv);
@@ -250,7 +250,7 @@ $(function () {
     //获取聊天好友
     function getFriend(username) {
         var result;
-        $.ajax("/friendId/" + username, {
+        $.ajax("/chat/friendId/" + username, {
             dataType: 'json',
             type: 'get',//HTTP请求类型
             timeout: 10000,//超时时间设置为10秒；
@@ -292,9 +292,9 @@ $(function () {
         debugger;
         if (connected) {
             // 构建ChatMsg
-            var recieveId = getFriend(username);
+            var receiveId = getFriend(username);
             var msg = cleanInput($inputMessage.val());
-            var chatMsg = new app.ChatMsg(username, recieveId, msg, null);
+            var chatMsg = new app.ChatMsg(username, receiveId, msg, null);
             // 构建Chat
             var chat = new app.Chat(app.CHAT, chatMsg, null);
             CHAT.chat(JSON.stringify(chat));

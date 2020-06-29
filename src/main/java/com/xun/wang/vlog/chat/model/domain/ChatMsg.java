@@ -17,9 +17,9 @@ public class ChatMsg implements Serializable {
 
 	private String msg;
 
-	private Long msgId;
+	private Long id;
 
-	private Integer signType;
+	private Integer effective;
 
 
 }

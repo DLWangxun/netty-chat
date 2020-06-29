@@ -1,4 +1,4 @@
-package com.xun.wang.vlog.chat.server.service;
+package com.xun.wang.vlog.chat.server;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;

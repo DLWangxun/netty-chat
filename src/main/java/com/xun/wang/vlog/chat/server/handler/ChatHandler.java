@@ -8,7 +8,7 @@ import java.util.Map;
 
 import com.xun.wang.vlog.chat.model.domain.Chat;
 import com.xun.wang.vlog.chat.model.enums.MsgActionEnum;
-import com.xun.wang.vlog.chat.server.service.CommunicationHandler;
+import com.xun.wang.vlog.chat.server.handler.strategy.CommunicationHandler;
 import com.xun.wang.vlog.chat.util.EnumUtils;
 import com.xun.wang.vlog.chat.util.JsonUtils;
 

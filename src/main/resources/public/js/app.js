@@ -24,11 +24,11 @@ window.app = {
    * @param {Object} msg
    * @param {Object} msgId
    */
-  ChatMsg: function (senderId, receiverId, msg, msgId) {
+  ChatMsg: function (senderId, receiverId, msg, id) {
     this.senderId = senderId;
     this.receiverId = receiverId;
     this.msg = msg;
-    this.msgId = msgId;
+    this.id = id;
   },
 
   /**

@@ -31,6 +31,7 @@ public class ChatChannelRef {
         return SingleEnum.INSTANCE.getChatChannelRef();
     }
 
+
     public void output() {
         manager.forEach((key, value) -> {
             log.info("管理管道详情,UserId:{},ChannelId:{}", key, value.id().asLongText());

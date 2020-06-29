@@ -27,3 +27,10 @@ thymeleaf:
   content-type: text/html
   cache: false
   enabled: true
+
+#elastaticsearch 配置
+elasticsearch:
+  host: 127.0.0.1
+  port: 9300
+  cluster:
+    name: vlog

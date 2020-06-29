@@ -1,15 +1,11 @@
-package com.xun.wang.vlog.chat.server.service.impl;
+package com.xun.wang.vlog.chat.server.handler.strategy;
 
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-
 import com.xun.wang.vlog.chat.model.domain.Chat;
-import com.xun.wang.vlog.chat.model.enums.MsgSignFlagEnum;
+import com.xun.wang.vlog.chat.model.enums.MsgFlagEnum;
 import com.xun.wang.vlog.chat.server.repository.ChatMsgRepository;
-import com.xun.wang.vlog.chat.server.service.CommunicationHandler;
-
 import org.apache.commons.beanutils.ConvertUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -37,7 +33,7 @@ public class SignedCommunicationHandler implements CommunicationHandler {
         Long[] msgIdsLongArray = (Long[]) ConvertUtils.convert(msgIdsStrArray, Long.class);
         List<Long> msgIdsList = Stream.of(msgIdsLongArray).collect(Collectors.toList());
         if (!CollectionUtils.isEmpty(msgIdsList)) {
-            repository.updateflagByIds(MsgSignFlagEnum.signed.getType(), msgIdsList);
+            repository.updateflagByIds(MsgFlagEnum.SIGNED.getCode(), msgIdsList);
         }
         result = true;
         return result;

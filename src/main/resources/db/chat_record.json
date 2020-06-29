@@ -1,0 +1,37 @@
+{
+  "settings":{
+    "number_of_replicas":0
+  },
+  "mappings":{
+    "chat_record":{
+      "dynamic": false,
+      "properties":{
+        "id":{
+          "type":"long"
+        },
+        "msg":{
+          "type":"text",
+          "index":"analyzed"
+        },
+        "receiverId":{
+          "type":"keyword"
+        },
+        "senderId":{
+          "type":"keyword"
+        },
+        "cdate":{
+          "type":"date",
+          "format":"strict_date_optional_time||epoch_millis"
+        },
+        "effective":{
+          "type":"long"
+        },
+        "suggest":{
+          "type": "completion"
+        }
+
+      }
+    }
+  }
+
+}

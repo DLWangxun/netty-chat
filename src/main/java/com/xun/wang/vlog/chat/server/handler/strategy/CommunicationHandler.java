@@ -1,4 +1,4 @@
-package com.xun.wang.vlog.chat.server.service;
+package com.xun.wang.vlog.chat.server.handler.strategy;
 
 import com.xun.wang.vlog.chat.model.domain.Chat;
 

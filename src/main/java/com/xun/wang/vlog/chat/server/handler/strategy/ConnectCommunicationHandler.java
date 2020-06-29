@@ -1,12 +1,8 @@
-package com.xun.wang.vlog.chat.server.service.impl;
+package com.xun.wang.vlog.chat.server.handler.strategy;
 
 
 import com.xun.wang.vlog.chat.model.domain.Chat;
 import com.xun.wang.vlog.chat.model.domain.ChatChannelRef;
-import com.xun.wang.vlog.chat.server.handler.ChatHandler;
-import com.xun.wang.vlog.chat.server.service.CommunicationHandler;
-
-
 import org.springframework.stereotype.Component;
 
 import io.netty.channel.Channel;
@@ -29,7 +25,6 @@ public class ConnectCommunicationHandler implements CommunicationHandler {
         // 当websocket 第一次open的时候，初始化channel，把用的channel和userid关联起来
         ChatChannelRef.getInstance().put(chat.getChatMsg().getSenderId(), channel);
         ChatChannelRef.getInstance().output();
-        //签收未读消息
 
         result = true;
         return result;

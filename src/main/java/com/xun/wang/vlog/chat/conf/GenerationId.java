@@ -15,12 +15,9 @@ import org.n3r.idworker.Sid;
 
 public class GenerationId implements IdentifierGenerator {
 
-
-    public GenerationId() {};
-
+    
     @Override
     public Serializable generate(SharedSessionContractImplementor session, Object object) throws HibernateException {
-        // TODO Auto-generated method stub
         return getId();
     }
 

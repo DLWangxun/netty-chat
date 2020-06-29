@@ -8,7 +8,7 @@ import lombok.Data;
 
 /**
  * @ClassName MessageDTO
- * @Description TODO
+ * @Description
  * @Author xun.d.wang
  * @Date 2020/4/16 11:04
  * @Version 1.0

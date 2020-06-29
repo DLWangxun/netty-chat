@@ -1,8 +1,8 @@
-package com.xun.wang.vlog.chat.server.service.impl;
+package com.xun.wang.vlog.chat.server.handler.strategy;
 
 import com.xun.wang.vlog.chat.model.domain.Chat;
-import com.xun.wang.vlog.chat.server.service.CommunicationHandler;
 import org.springframework.stereotype.Service;
+
 import io.netty.channel.Channel;
 import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import lombok.extern.slf4j.Slf4j;

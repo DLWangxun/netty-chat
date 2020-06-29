@@ -1,18 +1,22 @@
 package com.xun.wang.vlog.chat.controller;
 
 
-import java.util.Collection;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import javax.servlet.http.HttpServletRequest;
 
 import com.xun.wang.vlog.chat.model.domain.ChatMsg;
+import com.xun.wang.vlog.chat.model.domain.SearchCondition;
+import com.xun.wang.vlog.chat.model.vo.ResponseResult;
+import com.xun.wang.vlog.chat.server.search.SearchService;
 import com.xun.wang.vlog.chat.server.service.ChatService;
+import com.xun.wang.vlog.chat.util.ResultUtil;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -20,38 +24,43 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+/**
+　* @description: 页面 controller
+　* @author Lucas
+　* @date 2020/5/19 16:05
+  */
 @Controller
-public class PageController {
+@RequestMapping("/chat")
+public class ChatController {
 
     @Autowired
     private ChatService chatService;
+
+    @Autowired
+    private SearchService searchService;
 
     private final Map<String, String> friendMap = new HashMap<String, String>() {{
         put("lucas", "jenifer");
         put("jenifer", "lucas");
     }};
 
-    @RequestMapping("/chat")
+    @GetMapping
     public String chat(HttpServletRequest req) {
         return "chat";
     }
 
 
-    @GetMapping("/chat/record")
+    @GetMapping("/record")
     @ResponseBody
-    public Object getChatRecord(@RequestParam("senderId") String senderId, @RequestParam("recieverId") String recieverId) {
+    public Object getChatRecord(@ModelAttribute SearchCondition searchCondition) {
         Map<String, Object> result = new HashMap<String, Object>() {{
-            List<ChatMsg> chatMsgs = chatService.findChatRecordBySendIdAndRecieverId(senderId, recieverId);
+            List<ChatMsg> chatMsgs = chatService.findChatRecordBySendIdAndReceiverId(searchCondition);
             put("chatRecord", chatMsgs);
-            put("unSignMsgIds",chatMsgs.stream().filter(chatMsg ->
-                    chatMsg.getSignType() == 0).map(chatMsg -> {
-                return chatMsg.getMsgId();
-            }).collect(Collectors.toList()));
         }};
         return result;
     }
 
-    @PatchMapping("/chat/record")
+    @PatchMapping("/record")
     public Object signedChatMsg(@RequestBody List<Long> ids) {
         Map<String, Object> result = new HashMap<String, Object>() {{
             if (chatService.signedMsg(ids)) {
@@ -73,5 +82,16 @@ public class PageController {
         }};
         return result;
     }
+
+    @GetMapping("/autocomplete")
+    @ResponseBody
+    public ResponseResult<String> autocomplete(@RequestParam(value = "prefix", required = true) String prefix){
+        return  ResultUtil.success(searchService.suggest(prefix));
+    }
+
+
+
+
+
 
 }
