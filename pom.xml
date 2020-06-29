@@ -62,7 +62,7 @@
         <dependency>
             <groupId>io.netty</groupId>
             <artifactId>netty-all</artifactId>
-            <version>4.1.25.Final</version>
+            <version>4.1.42.Final</version>
         </dependency>
 
         <!-- thymeleaf 模板引擎 starter -->
