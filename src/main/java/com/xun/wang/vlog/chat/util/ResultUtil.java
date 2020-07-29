@@ -18,7 +18,7 @@ public class ResultUtil {
      * @return
      */
     public static ResponseResult success(Object data){
-       return getDetail(ResponseCodeEnum.SUCCESS,data);
+       return getResponseResult(ResponseCodeEnum.SUCCESS,data);
     }
 
     /**
@@ -26,8 +26,10 @@ public class ResultUtil {
      * @return
      */
     public static ResponseResult success(){
-        return getDetail(ResponseCodeEnum.SUCCESS,null);
+        return getResponseResult(ResponseCodeEnum.SUCCESS,null);
     }
+
+
 
     /**
      * 设置ResponseResult 各项值
@@ -35,7 +37,7 @@ public class ResultUtil {
      * @param data
      * @return
      */
-    private static ResponseResult getDetail(ResponseCodeEnum codeEnum, Object data){
+    public static ResponseResult getResponseResult(ResponseCodeEnum codeEnum, Object data){
         ResponseResult responseResult = new ResponseResult();
         responseResult.setCode(codeEnum.getCode());
         responseResult.setMessage(codeEnum.getMessage());

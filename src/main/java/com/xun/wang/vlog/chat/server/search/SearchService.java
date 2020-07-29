@@ -1,6 +1,7 @@
 package com.xun.wang.vlog.chat.server.search;
 
 import java.util.List;
+import java.util.Map;
 
 import com.xun.wang.vlog.chat.model.document.ChatDoc;
 import com.xun.wang.vlog.chat.model.domain.SearchCondition;
@@ -43,6 +44,14 @@ public interface SearchService {
      * @return
      */
     List<String> suggest(String prefix);
+
+
+    /**
+     * 根据ids更新
+     * @param ids
+     * @return
+     */
+    void sigenedByIds(List<String> ids);
 
 
 

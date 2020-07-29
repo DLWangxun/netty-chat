@@ -3,7 +3,6 @@ package com.xun.wang.vlog.chat.model.domain;
 import java.util.HashMap;
 
 import com.xun.wang.vlog.chat.model.enums.SingleEnum;
-
 import io.netty.channel.Channel;
 import lombok.extern.slf4j.Slf4j;
 
@@ -27,10 +26,20 @@ public class ChatChannelRef {
         return manager.get(senderId);
     }
 
+
+
     public static ChatChannelRef getInstance() {
         return SingleEnum.INSTANCE.getChatChannelRef();
     }
 
+
+    public void removeByChannel(String channelId){
+      manager.forEach((id,channel)->{
+          if(channel.id().asLongText().equals(channelId)){
+              manager.remove(id);
+          }
+      });
+    }
 
     public void output() {
         manager.forEach((key, value) -> {

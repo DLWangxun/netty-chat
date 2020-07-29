@@ -1,5 +1,6 @@
 package com.xun.wang.vlog.chat.server.handler.strategy;
 
+import java.lang.reflect.Array;
 import java.util.Date;
 
 import com.xun.wang.vlog.chat.model.document.ChatDoc;
@@ -26,7 +27,7 @@ import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
  * @Version 1.0
  **/
 @Service
-public class ChatCommunicationHandler implements CommunicationHandler {
+public class ChatCommunicationStrategyImpl implements CommunicationStrategy {
 
     @Autowired
     private ChatMsgRepository repository;
@@ -37,19 +38,23 @@ public class ChatCommunicationHandler implements CommunicationHandler {
     public boolean handler(Channel channel, Chat chat) {
         // 判断执行结果
         boolean result = false;
-        //添加index
-        ChatDoc chatDoc = getChatDoc(chat.getChatMsg());
-        searchService.create(chatDoc);
         // 发送消息
         Channel receiverChannel = ChatChannelRef.getInstance().get(chat.getChatMsg().getReceiverId());
-
         if (receiverChannel == null) {
-            // TODO channel为空代表用户离线，推送消息（JPush，个推，小米推送）
+            chat.getChatMsg().setSignMark(MsgFlagEnum.UNSIGN.getCode());
         } else {
+            //对方接收消息
+            chat.getChatMsg().setSignMark(MsgFlagEnum.SIGNED.getCode());
                 receiverChannel.writeAndFlush(
-                        new TextWebSocketFrame(
-                                JsonUtils.objectToJson(chat)));
+                        new TextWebSocketFrame(JsonUtils.objectToJson(chat)));
+
+            //本方消息状态
+            String[] id = { Long.toString(chat.getChatMsg().getId())};
+            channel.writeAndFlush(new TextWebSocketFrame(JsonUtils.objectToJson( id)));
         }
+        //聊天记录添加
+        ChatDoc chatDoc = getChatDoc(chat.getChatMsg());
+        searchService.create(chatDoc);
         result = true;
         return result;
     }
@@ -63,7 +68,6 @@ public class ChatCommunicationHandler implements CommunicationHandler {
         BeanCopier beanCopier = BeanCopier.create(ChatMsg.class,
                 ChatDoc.class, false);
         beanCopier.copy(chatMsg, chatDoc, null);
-        chatDoc.setId(Sid.next());
         chatDoc.setCdate(new Date());
         // 发送消息
         Channel receiverChannel = ChatChannelRef.getInstance().get(chatMsg.getReceiverId());

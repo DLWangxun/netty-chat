@@ -8,7 +8,8 @@ import java.util.Map;
 
 import com.xun.wang.vlog.chat.model.domain.Chat;
 import com.xun.wang.vlog.chat.model.enums.MsgActionEnum;
-import com.xun.wang.vlog.chat.server.handler.strategy.CommunicationHandler;
+import com.xun.wang.vlog.chat.model.enums.SingleEnum;
+import com.xun.wang.vlog.chat.server.handler.strategy.CommunicationStrategy;
 import com.xun.wang.vlog.chat.util.EnumUtils;
 import com.xun.wang.vlog.chat.util.JsonUtils;
 
@@ -39,12 +40,12 @@ import lombok.extern.slf4j.Slf4j;
 public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame> {
 
     @Autowired
-    private Map<String, CommunicationHandler> communicationHandlerMap;
+    private Map<String, CommunicationStrategy> communicationHandlerMap;
 
     // 用于记录和管理所有客户端的channle
     public static ChannelGroup users = new DefaultChannelGroup(GlobalEventExecutor.INSTANCE);
 
-    private final String HANDLER_NAME_SUFFIX = "CommunicationHandler";
+    private final String HANDLER_NAME_SUFFIX = "CommunicationStrategyImpl";
 
 
     @Override
@@ -74,6 +75,7 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
         return localDateTime.format(dateToStrFormatter);
     }
 
+
     @Override
     public void channelActive(ChannelHandlerContext ctx) throws Exception {
         users.add(ctx.channel());
@@ -81,7 +83,10 @@ public class ChatHandler extends SimpleChannelInboundHandler<TextWebSocketFrame>
 
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        //用户下线
+        SingleEnum.INSTANCE.getChatChannelRef().removeByChannel(ctx.channel().id().asLongText());
         users.remove(ctx.channel());
+        ctx.channel().close();
     }
 
     @Override

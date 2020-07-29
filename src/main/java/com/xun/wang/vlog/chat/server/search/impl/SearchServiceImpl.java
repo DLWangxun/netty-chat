@@ -2,10 +2,11 @@ package com.xun.wang.vlog.chat.server.search.impl;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -15,7 +16,9 @@ import com.xun.wang.vlog.chat.model.domain.ChatSuggest;
 import com.xun.wang.vlog.chat.model.domain.SearchCondition;
 import com.xun.wang.vlog.chat.model.domain.ServiceMultiResult;
 import com.xun.wang.vlog.chat.model.enums.ChatIndexKey;
+import com.xun.wang.vlog.chat.model.enums.MsgFlagEnum;
 import com.xun.wang.vlog.chat.server.search.SearchService;
+import org.apache.commons.lang3.ArrayUtils;
 import org.elasticsearch.action.admin.indices.analyze.AnalyzeAction;
 import org.elasticsearch.action.admin.indices.analyze.AnalyzeRequestBuilder;
 import org.elasticsearch.action.admin.indices.analyze.AnalyzeResponse;
@@ -23,12 +26,19 @@ import org.elasticsearch.action.index.IndexResponse;
 import org.elasticsearch.action.search.SearchRequestBuilder;
 import org.elasticsearch.action.search.SearchResponse;
 import org.elasticsearch.client.transport.TransportClient;
+import org.elasticsearch.common.text.Text;
 import org.elasticsearch.index.query.BoolQueryBuilder;
 import org.elasticsearch.index.query.QueryBuilders;
 import org.elasticsearch.index.reindex.BulkByScrollResponse;
 import org.elasticsearch.index.reindex.DeleteByQueryAction;
 import org.elasticsearch.index.reindex.DeleteByQueryRequestBuilder;
+import org.elasticsearch.index.reindex.UpdateByQueryAction;
+import org.elasticsearch.index.reindex.UpdateByQueryRequestBuilder;
 import org.elasticsearch.rest.RestStatus;
+import org.elasticsearch.script.Script;
+import org.elasticsearch.script.ScriptType;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightBuilder;
+import org.elasticsearch.search.fetch.subphase.highlight.HighlightField;
 import org.elasticsearch.search.sort.SortOrder;
 import org.elasticsearch.search.suggest.Suggest;
 import org.elasticsearch.search.suggest.SuggestBuilder;
@@ -37,7 +47,6 @@ import org.elasticsearch.search.suggest.completion.CompletionSuggestion;
 import org.elasticsearch.search.suggest.completion.CompletionSuggestionBuilder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.thymeleaf.expression.Lists;
 
 import lombok.extern.slf4j.Slf4j;
 
@@ -140,6 +149,13 @@ public class SearchServiceImpl implements SearchService {
         if (condition.getMsg() != null && !"*".equals(condition.getMsg())) {
             lastBoolQuery.must(QueryBuilders.matchQuery(ChatIndexKey.MSG.getCode(), condition.getMsg()));
         }
+        lastBoolQuery.must(QueryBuilders.matchQuery(ChatIndexKey.EFFECTIVE.getCode(),"1"));
+        HighlightBuilder highlightBuilder = new HighlightBuilder(); //生成高亮查询器
+        highlightBuilder.field(ChatIndexKey.MSG.getCode());    //高亮查询字段
+        highlightBuilder.preTags("<span style=\"color:green\">");   //高亮设置
+        highlightBuilder.postTags("</span>");
+        highlightBuilder.fragmentSize(800000); //最大高亮分片数
+
         SearchRequestBuilder requestBuilder = this.esClient.prepareSearch(INDEX_NAME)
                 .setTypes(INDEX_TYPE)
                 .setQuery(lastBoolQuery)
@@ -147,14 +163,30 @@ public class SearchServiceImpl implements SearchService {
                         ChatIndexKey.CDATE.getCode(),
                         SortOrder.fromString("asc")
                 )
-                .setFrom(0)
+                .setTrackScores(true)             //避免分页之后相关性乱了
+                .highlighter(highlightBuilder)     //配置高亮
+                .setFrom(condition.getPageNumber())
                 .setSize(10);
+
+
+
         SearchResponse response = requestBuilder.get();
         List<ChatDoc> chatDocs = new ArrayList<>();
         if (response.status() == RestStatus.OK) {
             response.getHits().forEach(item -> {
                 try {
-                    chatDocs.add(objectMapper.readValue(item.getSourceAsString(), ChatDoc.class));
+                    //获取结果值
+                    ChatDoc chatDoc = objectMapper.readValue(item.getSourceAsString(), ChatDoc.class);
+                    //获取高亮字段
+                    Map<String, HighlightField> highlightFields = item.getHighlightFields();
+                    HighlightField highlightField = highlightFields.get("msg");
+
+                    if(highlightField != null){
+                        Text[] fragments = highlightField.fragments();
+                        String msg = ArrayUtils.toString(fragments);
+                        chatDoc.setMsg(msg);
+                    }
+                    chatDocs.add(chatDoc);
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -166,7 +198,7 @@ public class SearchServiceImpl implements SearchService {
 
     public List<String> suggest(String prefix) {
                CompletionSuggestionBuilder suggestion =
-                SuggestBuilders.completionSuggestion("suggest").prefix(prefix).size(5);
+                SuggestBuilders.completionSuggestion("suggests").prefix(prefix).size(5);
         SuggestBuilder suggestBuilder = new SuggestBuilder();
         suggestBuilder.addSuggestion("autocomplete", suggestion);
         SearchRequestBuilder requestBuilder = this.esClient.prepareSearch(INDEX_NAME)
@@ -198,9 +230,30 @@ public class SearchServiceImpl implements SearchService {
 
             if (maxSuggest > 5) {
                 break;
+
             }
         }
         return results.stream().collect(Collectors.toList());
+    }
+
+    @Override
+    public void sigenedByIds(List<String> ids) {
+        UpdateByQueryRequestBuilder updateByQuery =  UpdateByQueryAction.INSTANCE.newRequestBuilder(this.esClient);
+        Map<String,Object> params = new HashMap<String,Object>();
+        params.put("signMark", MsgFlagEnum.SIGNED.getCode());
+        ScriptType type = ScriptType.INLINE;
+        String lang = "painless";
+        String code = "ctx._source.signMark=params.signMark";
+        Script script = new Script(type,lang,code,params);
+        BulkByScrollResponse response = updateByQuery.source(INDEX_NAME).script(script)
+                .filter(QueryBuilders.termsQuery("id", ids))
+                .abortOnVersionConflict(false)
+                .get();
+        long rows = response.getUpdated();
+        if(rows == ids.size()){
+            log.error("消息签收失败,ids:{}",ids.toString());
+        }
+        log.info("消息签收成功,ids:{}",ids.toString());
     }
 
 }

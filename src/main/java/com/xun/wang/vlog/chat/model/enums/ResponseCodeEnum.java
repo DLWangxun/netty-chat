@@ -7,9 +7,12 @@ import lombok.Getter;
 @Getter
 public enum ResponseCodeEnum {
 
-    SUCCESS(200,"请求成功"),
+    SUCCESS(10000,"请求成功"),
 
-    SERVLET_EXCEPTION(500,"服务器异常");
+    BUSINESS_FAILED(10001,"业务处理失败"),
+
+    SERVLET_EXCEPTION(20000,"服务器异常");
+
 
     private int code ;
 

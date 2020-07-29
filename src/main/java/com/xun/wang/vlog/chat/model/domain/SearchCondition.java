@@ -16,4 +16,5 @@ public class SearchCondition {
     private String receiverId;
     private Integer effective;
     private Data cdate;
+    private Integer pageNumber = 0;
 }

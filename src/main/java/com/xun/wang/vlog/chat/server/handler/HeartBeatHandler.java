@@ -1,5 +1,6 @@
 package com.xun.wang.vlog.chat.server.handler;
 
+import com.xun.wang.vlog.chat.model.domain.ChatChannelRef;
 import org.springframework.stereotype.Component;
 
 import io.netty.channel.Channel;

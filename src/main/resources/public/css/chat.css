@@ -31,6 +31,9 @@ ul {
   word-wrap: break-word;
 }
 
+
+
+
 /* Pages */
 
 .pages {
@@ -95,22 +98,16 @@ ul {
 /* Font */
 
 .receiveMsg {
-  font-size: 150%;
+  font-size: 14px;
   text-align: left;
 }
 
-.receiveMsg {
-  font-size: 150%;
-  text-align: left;
-}
 .sendMsg {
-  font-size: 150%;
+  font-size: 14px;
   text-align: right;
 }
 
-.sendMsg  .username{
-  padding-left: 15px !important;
-}
+
 
 
 
@@ -130,6 +127,7 @@ ul {
 .chatArea {
   height: 100%;
   padding-bottom: 60px;
+  background: #f5f5f5
 }
 
 .messages {
@@ -143,12 +141,6 @@ ul {
   color: gray;
 }
 
-.username {
-  font-weight: 700;
-  overflow: hidden;
-  padding-right: 15px;
-  text-align: right;
-}
 
 /* Input */
 
@@ -162,4 +154,68 @@ ul {
   position: absolute;
   right: 0;
   width: 100%;
+}
+
+.receiveMsg .messageBody{
+  background: #fff;
+  padding: 16px;
+  border-radius: 4px;
+  margin: 0 10px;
+  max-width: 80%;
+  border: 1px solid #ededed;
+  position: relative;
+  vertical-align: middle;
+}
+
+.receiveMsg .messageBody:before{
+  content: "";
+  position: absolute;
+  top: 30%;
+  right: 100%;
+  border: 6px solid transparent;
+  border-right-color: #fff;
+  right: inherit;
+  right: 100%;
+}
+
+.sendMsg .messageBody{
+  background: #9eea6a;
+  padding: 16px;
+  border-radius: 4px;
+  margin: 0 10px;
+  max-width: 80%;
+  position: relative;
+  vertical-align: middle;
+}
+.sendMsg .messageBody:before{
+  content: " ";
+  position: absolute;
+  top: 30%;
+  right: 100%;
+  border: 6px solid transparent;
+  border-left-color: #9eea6a;
+  right: inherit;
+  left: 100%;
+}
+
+.headImg{
+  width: 50px;
+  height: 50px;
+  border-radius: 2px;
+  box-sizing: border-box;
+  vertical-align: middle;
+  border: 0;
+}
+
+ul li{
+  margin: 20px 0px;
+}
+
+.status{
+  background: #24d4d0;
+  bottom: 1px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  display: inline-block;
 }

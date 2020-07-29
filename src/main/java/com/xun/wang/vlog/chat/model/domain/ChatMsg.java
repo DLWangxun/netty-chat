@@ -21,5 +21,7 @@ public class ChatMsg implements Serializable {
 
 	private Integer effective;
 
+	private Integer signMark;
+
 
 }
