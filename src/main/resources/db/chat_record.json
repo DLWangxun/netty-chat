@@ -30,7 +30,7 @@
           "type":"long"
         },
         "suggests":{
-          "type": "completion"
+          "type": "completion2"
         }
 
       }
